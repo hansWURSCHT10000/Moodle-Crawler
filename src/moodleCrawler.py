@@ -597,7 +597,7 @@ def dontCrawlCoursesCheck(url):
       return True
    return False
 
-#Warning: This function exits the strict if it could not load the course list page
+#Warning: This function exits the script if it could not load the course list page
 #Try to crawl all courses from moodlepage/my/
 def findOwnCourses(myCoursesURL):
    log("Searching Courses...", 2)
