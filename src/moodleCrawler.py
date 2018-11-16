@@ -20,7 +20,6 @@
 
 import http.cookiejar
 import urllib
-import io
 import os
 import os.path
 import hashlib
