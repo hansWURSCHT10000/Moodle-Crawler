@@ -52,7 +52,7 @@ progressmessagelength = 0
 
 
 
-#Import Libs if needed
+#Import libs if needed
 try:
    from bs4 import BeautifulSoup
    from bs4.element import Comment
@@ -65,12 +65,12 @@ importlib.reload(sys)
 
 
 #Log levels:
-# - Level 0: Minimal Information + small Errors
-# - Level 1: More Information + Successes  + duplicates deleted
-# - Level 2: Doing Statemants + Found information
-# - Level 3: More Errors + More Infos
-# - Level 4: More Doing Statements + Dowload Info + Scann duplicates
-# - Level 5: More Download Info + More Info about duplicates
+# - Level 0: Minimal information + small errors
+# - Level 1: More information + successes  + duplicates deleted
+# - Level 2: Doing statemants + found information
+# - Level 3: More errors + more infos
+# - Level 4: More doing statements + dowload info + scan duplicates
+# - Level 5: More download info + more info about duplicates
 
  
 def log(logString, level=0):
@@ -180,7 +180,7 @@ def checkConf(cat, name):
      exit()  
 
 
-#get Config
+#get config
 conf = ConfigParser()
 project_dir = os.path.dirname(os.path.abspath(__file__))
 conf.read(os.path.join(project_dir, config_path))
@@ -211,7 +211,7 @@ maxdepth = checkConf("crawl", "maxdepth")
 dontcrawl = checkConf("crawl", "dontcrawl") 
 onlycrawlcourses = checkConf("crawl", "onlycrawlcourses")
 dontcrawlcourses = checkConf("crawl", "dontcrawlcourses")
-antirecrusion = checkConf("crawl", "antirecrusion")
+antirecursion = checkConf("crawl", "antirecursion")
  
 useColors = checkConf("other", "colors") 
 notifyFound = checkConf("other", "notifications") 
@@ -238,7 +238,7 @@ checkBool(useColors, "colors")
 checkBool(useauthstate, "useauthstate")
 checkBool(notifyFound, "notifications")
 checkBool(reLoginOnFile, "reloginonfile")
-checkBool(antirecrusion, "antirecrusion")
+checkBool(antirecursion, "antirecursion")
 
 loglevel = checkInt(loglevel, "loglevel")
 maxdepth = checkInt(maxdepth, "maxdepth")
@@ -266,11 +266,11 @@ if useColors == "true":
 
 
 
-#Setup Dump Search    
+#Setup dump search
 filesBySize = {}
 
 
-#Setup Loader
+#Setup loader
 cj = http.cookiejar.CookieJar()
 opener = urllib.request.build_opener(urllib.request.HTTPCookieProcessor(cj))
 opener.addheaders = [('User-agent', 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.103 Safari/537.36')]
@@ -466,7 +466,7 @@ def addHashToLog(pageDir, calcHash):
 
 
 
-#moodlePage is Content not Soup
+#moodlePage is content not soup
 def simpleLoginCheck(moodlePage): 
  # print moodlePage
   if moodlePage.find("logout.php") >= 0: 
@@ -550,7 +550,7 @@ def checkLoginStatus(pageContent):
       log("Crawler is still loged in.", 4)
       return 1
    #else:
-   #   log("No logininfo on this page.", 5)
+   #   log("No login info on this page.", 5)
    #   return 3    
 
 
@@ -580,11 +580,8 @@ def dontCrawlCheck(url):
 def onlyCrawlCoursesCheck(url):
 
    coursId = url.split("?")[1].split("&")[0].split("=")[1]
-   #print("onlyCrawlCoursesCheck: ", onlycrawlcourses)
-   #print("len: ", len(onlycrawlcourses))
 
    if (onlycrawlcourses == '""'):
-     # print("checked is empty: ", onlycrawlcourses)
       return True
    
    if not coursId is None and coursId in listOnlyCrawlCourses:
@@ -600,8 +597,8 @@ def dontCrawlCoursesCheck(url):
       return True
    return False
 
-#warning this function exit the stript if it could not load the course list page
-#try to crawl all courses from moodlepage/my/
+#Warning: This function exits the strict if it could not load the course list page
+#Try to crawl all courses from moodlepage/my/
 def findOwnCourses(myCoursesURL):
    log("Searching Courses...", 2)
    
@@ -800,7 +797,7 @@ def searchfordumpsSpecific(filepath, fileName, filetype, pathtoSearch):
     #        log('Deleting %s' % f, 1)
     #        os.remove(f) 
 
-    #delete only searched tupple
+    #delete only searched tuple
     if not foundDupes is None: 
         log('Original is %s' % foundDupes[0], 4)
         for f in foundDupes[1:]:
@@ -812,7 +809,7 @@ def searchfordumpsSpecific(filepath, fileName, filetype, pathtoSearch):
 
 
 def searchfordumps(pathtoSearch):
-    #find duplication in folder  pathtoSearch
+    #find duplication in folder pathtoSearch
     global filesBySize
     filesBySize = {}
     log('Scanning directory "%s"....' % pathtoSearch, 5)
@@ -893,7 +890,7 @@ def searchfordumps(pathtoSearch):
 
 
 
-#log Duplicates
+#log duplicates
 def logDuplicates(dubPath, oriPath):
    fileName = dubPath.split(os.sep)[-1]
    dubDir = dubPath[:(len(dubPath) - len(fileName) )]
@@ -926,7 +923,7 @@ def logDuplicates(dubPath, oriPath):
 
    
 
-#log External Link toLog file and File in Folder
+#Log external link to logfile and file in folder
 def logExternalLink(extlink, extname, extLinkDir):
     if not os.path.isdir(extLinkDir):
       os.makedirs(extLinkDir)   
@@ -992,8 +989,8 @@ Name[en_US]=""" + extname)
 
 
 
-#try to crawl all links on a moodle page. And runs rekursive this funktion on it
-def crawlMoodlePage(pagelink, pagename, parentDir, calledFrom, depth=0, forbidrecrusionfor=[]):
+#Try to crawl all links on a moodle page and runs this recursive funktion on it
+def crawlMoodlePage(pagelink, pagename, parentDir, calledFrom, depth=0, forbidrecursionfor=[]):
 
 
     if exitapp:
@@ -1004,7 +1001,7 @@ def crawlMoodlePage(pagelink, pagename, parentDir, calledFrom, depth=0, forbidre
        log("Something went wrong! CalledFrom is empty!", 2) 
        calledFrom = ""
     
-    #check Parameter
+    #check parameter
     wrongParameter = False
 
     if pagelink is None or pagelink == "":
@@ -1037,7 +1034,7 @@ def crawlMoodlePage(pagelink, pagename, parentDir, calledFrom, depth=0, forbidre
        log("There went something wrong, this is an empty link.", 3)
        return
  
-    #korregiere link falls nicht korrekt
+    #correct link if not correct
     if not pagelink.startswith("https://") and not pagelink.startswith("http://") and not pagelink.startswith("www."):
        if pagelink.startswith('/'):
           parsed_uri = urlparse(calledFrom)
@@ -1102,17 +1099,17 @@ def crawlMoodlePage(pagelink, pagename, parentDir, calledFrom, depth=0, forbidre
        return
 
 
-    #Skip Moodle Pages
-    #/user/   = users                               | skipTotaly
-    #/badges/ = Auszeichnungen                      | skipTotaly
-    #/blog/ = blogs                                 | skipTotaly
-    #/feedback/ = feedback page unwichtig ?         | skipTotaly
+    #Skip these moodle pages:
+    #/user/   = users                                 | skipTotaly
+    #/badges/ = awards                                | skipTotaly
+    #/blog/ = blogs                                   | skipTotaly
+    #/feedback/ = feedback page unimportant ?         | skipTotaly
 
-    #/choicegroup/ = gruppen wahl -- unwichtig ?    | skipTotaly
-    #/groupexchange/ = gruppenwechsel unwichtig?    | skipTotaly
-    #/calendar/ = kalender -- rekrusion!! unwicht.  | skipTotaly
-    #/glossary/ = wörterbuch -- unwichtig           | skipTotaly
-    #action=delchoice bzw. action= = aktionen -- nicht gut, sollten vom user getätigt werden | skipTotaly 
+    #/choicegroup/ = group choice -- unimportant ?    | skipTotaly
+    #/groupexchange/ = groupchange unimportant?       | skipTotaly
+    #/calendar/ = calendar -- recursion!! unimportant | skipTotaly
+    #/glossary/ = wordlist -- unimportant             | skipTotaly
+    #action=delchoice & action= = actions-- not good, shoukd only be handled by the user | skipTotaly
     if isexternlink == False:
        if "/user/" in pagelink or  "/badges/" in pagelink or "/blog/" in pagelink or "/feedback/" in pagelink or "/choicegroup/" in pagelink or "/groupexchange/" in pagelink or "/calender/" in pagelink or "/glossary/" in pagelink or "action=" in pagelink:
           log("This is a moodle page. But I will skip it because it is not important.", 4)
@@ -1121,21 +1118,21 @@ def crawlMoodlePage(pagelink, pagename, parentDir, calledFrom, depth=0, forbidre
     if dontCrawlCheck(pagelink):
        log("This page will not be crawled because it ends with a file extension given in option 'dontcrawl'.", 3)
        return
-    
-    
-    #stop recrusion
-    forbidrecrusionforNew = forbidrecrusionfor[:]
-    if not pagelink == calledFrom and pagelink.split('?')[0] == calledFrom.split('?')[0]: 
-       log("Changing paramter detected! Recrusion posible!", 3)
-       if antirecrusion == "true":
-          if pagelink.split('?')[0] in forbidrecrusionfor:
-            log("Stopping recrusion! If you do missing files, set the option 'antirecrusion' to 'false'.", 1)
+
+
+    #stop recursion
+    forbidrecursionforNew = forbidrecursionfor[:]
+    if not pagelink == calledFrom and pagelink.split('?')[0] == calledFrom.split('?')[0]:
+       log("Changing paramter detected! Recursion posible!", 3)
+       if antirecursion == "true":
+          if pagelink.split('?')[0] in forbidrecursionfor:
+            log("Stopping recursion! If you do missing files, set the option 'antirecursion' to 'false'.", 1)
             visitedPages.remove(pagelink)
-            #TODO: add pagelink to a recrawl recruive list... 
+            #TODO: add pagelink to a recrawl recruive list...
             return
           else:
-            forbidrecrusionforNew.append(pagelink.split('?')[0])
-     
+            forbidrecursionforNew.append(pagelink.split('?')[0])
+
     #try to get a response from link
     try:
        responsePageLink = urllib.request.urlopen(pagelink, timeout=10)
@@ -1143,24 +1140,24 @@ def crawlMoodlePage(pagelink, pagename, parentDir, calledFrom, depth=0, forbidre
        log("Connection lost! Page does not exist!", 2)
        log("Exception details2: " + str(e), 5)
        return
-   
+
     isSpecialExternLink = False
     realurl = responsePageLink.geturl()
     if isexternlink == False and not domainMoodle in realurl:
        log("This is an special external link.", 2)
-       if usehistory == "true" and realurl in logFile:     
+       if usehistory == "true" and realurl in logFile:
             log("This link was crawled in the past. I will not recrawl it, change the settings if you want to recrawl it.", 3)
             return
 
        logExternalLink(realurl, pagename, parentDir)
-       
+
        isSpecialExternLink = True
        if downloadExternals == "false":
           log("Ups this is an external link. I do not crawl external links. Change the settings if you want to crawl external links.", 3)
           return
 
 
-     
+
     #get the filename
     pageFileName = ""
     try:
@@ -1174,26 +1171,26 @@ def crawlMoodlePage(pagelink, pagename, parentDir, calledFrom, depth=0, forbidre
 
     pageFileName = decodeFilename(pageFileName).strip("-")
 
-    #is this page a html page
+    #is this page a html page?
     pageIsHtml = False
     if "text/html" in responsePageLink.info().get('Content-Type') or pageFileName[-4:] == ".php" or pageFileName[-5:] == ".html":
        pageIsHtml = True
 
-    #cheating: try to fix moodle page names
+    #Cheating: Try to fix moodle page names
     if isexternlink == False and pageIsHtml == True:
        pageFileName = pagename + ".html"
 
 
- 
+
 
     PageLinkContent = donwloadFile(responsePageLink)
-    
-     
+
+
     #check for login status
     if pageIsHtml == True and reLoginOnFile == "true" and simpleMoodleCheck(PageLinkContent):
 
        try:
-          loginStatus = checkLoginStatus(PageLinkContent) 
+          loginStatus = checkLoginStatus(PageLinkContent)
        except Exception as e:
           log("Connection lost! It is not possible to connect to moodle!", 3)
           log("Exception details4: " + str(e), 5)
@@ -1214,15 +1211,15 @@ def crawlMoodlePage(pagelink, pagename, parentDir, calledFrom, depth=0, forbidre
              log("Connection lost! Page does not exist!", 3)
              log("Exception details5: " + str(e), 5)
              return
-     
+
           PageLinkContent = donwloadFile(responsePageLink)
           print("\nresponsePageLink:\n", responsePageLink)
-          
+
        elif loginStatus == 3: #Not a moodle Page
           if isexternlink == False:
              log("Strangely, this is not a moodle page! I did not expect that this is an external link!", 3)
              isexternlink = True
- 
+
 
     pageDir = normPath(addSlashIfNeeded(parentDir) + pagename)
 
@@ -1232,18 +1229,18 @@ def crawlMoodlePage(pagelink, pagename, parentDir, calledFrom, depth=0, forbidre
 
     page_links = None
     course_section = None
-    
-    if pageIsHtml == True and isexternlink == False:
-       PageSoup = BeautifulSoup(PageLinkContent, "lxml") 
- 
-       page_links_Soup = PageSoup.find(id="region-main") 
 
-       if not page_links_Soup is None: 
+    if pageIsHtml == True and isexternlink == False:
+       PageSoup = BeautifulSoup(PageLinkContent, "lxml")
+
+       page_links_Soup = PageSoup.find(id="region-main")
+
+       if not page_links_Soup is None:
           #build up own moodle page
 
-          
+
           [s.decompose() for s in page_links_Soup.select("input[name=sesskey]")]
-          
+
           #inputTags = page_links_Soup.select('input')
           #for inputB in inputTags:
           #    if inputB.has_attr('sesskey'):
@@ -1254,12 +1251,12 @@ def crawlMoodlePage(pagelink, pagename, parentDir, calledFrom, depth=0, forbidre
             if aBad.has_attr('id'):
               if aBad['id'].startswith("action_link"):
                   del aBad['id']
-          
+
           for dirtyTag in page_links_Soup.findAll(id=re.compile("^id_")):
              del dirtyTag['id']
 
 
-          
+
           [s.decompose() for s in page_links_Soup.select(".questionflag")]
           [s.decompose() for s in page_links_Soup.select(".questionflagpostdata")]
 
@@ -1276,7 +1273,7 @@ def crawlMoodlePage(pagelink, pagename, parentDir, calledFrom, depth=0, forbidre
           #[s.decompose() for s in moodlePageHeader('script')]
 
           #[s.decompose() for s in moodlePageHeader('link')]
-          
+
           stylesheetpattern = re.compile("^(.*)/styles.php/(.*)/\d*/(.*)$")
           faviconpattern = re.compile("^(.*)/image.php/(.*)/\d*/(.*)$")
           favicon2pattern = re.compile("^(.*)/pluginfile.php/(.*)/\d*/(.*)$")
@@ -1307,13 +1304,13 @@ def crawlMoodlePage(pagelink, pagename, parentDir, calledFrom, depth=0, forbidre
               m = faviconpattern.match(s['src'])
               if m != None:
                 s['src'] = (m.group(1) + "/image.php/" + m.group(2) + "/42/" + m.group(3))
-                continue 
+                continue
               m = favicon2pattern.match(s['src'])
               if m != None:
-                s['src'] = (m.group(1) + "/pluginfile.php/" + m.group(2) + "/42/" + m.group(3)) 
+                s['src'] = (m.group(1) + "/pluginfile.php/" + m.group(2) + "/42/" + m.group(3))
                 continue
-        
- 
+
+
 
 
 
@@ -1325,12 +1322,12 @@ def crawlMoodlePage(pagelink, pagename, parentDir, calledFrom, depth=0, forbidre
 
 
           page_links = page_links_Soup.find_all('a')
-        
+
 
           pageFoundLinks = len(page_links)
-          isaMoodlePage = True 
+          isaMoodlePage = True
 
-          
+
 
 
     #do some filters for moodle pages
@@ -1339,19 +1336,19 @@ def crawlMoodlePage(pagelink, pagename, parentDir, calledFrom, depth=0, forbidre
     doAddToHistory = False
 
 
-#/url/ = redirekt unwichtig                     | doNotSave; DoNotRecrawl
-#/resource/ = redirekt unwichtig!               | doNotSave; DoNotRecrawl
+#/url/ = redirect unimportant                     | doNotSave; DoNotRecrawl
+#/resource/ = redirect unimportant!               | doNotSave; DoNotRecrawl
 
-#/folder/ = folder strukt unwichtig ?           | doNotSave;
-#/assign/ = Aufgaben Folder                     | doNotSave;
+#/folder/ = folder struct unimportant ?           | doNotSave;
+#/assign/ = exercise folder                       | doNotSave;
 
 #/pluginfile.php/ = download file               | DoNotRecrawl;
 
 #/course/view.php = startpage course            | saveInPagedir
 
-#/page/ = info meistens WICHTIG                 | ???
+#/page/ = info usaually important               | ???
 #/wiki/ = wiki shit                             | saveInPagedir
-#/quiz/ = hausaufgaben wichtig ?                | saveInPagedir      ??maybe do not save  
+#/quiz/ = homework important   ?                | saveInPagedir      ??maybe do not save
 
 
     if isaMoodlePage:
@@ -1433,7 +1430,7 @@ def crawlMoodlePage(pagelink, pagename, parentDir, calledFrom, depth=0, forbidre
                 nextName = decodeFilename(nextName).strip("-")
  
  
-                crawlMoodlePage(hrefPageLink, nextName, sectionDir, pagelink, (depth + 1), forbidrecrusionforNew)
+                crawlMoodlePage(hrefPageLink, nextName, sectionDir, pagelink, (depth + 1), forbidrecursionforNew)
 
    
 
@@ -1458,7 +1455,7 @@ def crawlMoodlePage(pagelink, pagename, parentDir, calledFrom, depth=0, forbidre
             nextName = pagename
          
          
-         crawlMoodlePage(hrefPageLink, nextName, nextParentDir, pagelink, (depth + 1), forbidrecrusionforNew)
+         crawlMoodlePage(hrefPageLink, nextName, nextParentDir, pagelink, (depth + 1), forbidrecursionforNew)
 
   
     # add Link to crawler history
@@ -1575,7 +1572,7 @@ if useauthstate == "true":
 
   extaLoginToken =  urllib.parse.urlencode(payloadAuthState) 
   select_url = addQuestionmarkIfNeeded(actionLink) + extaLoginToken
-  log("Select url = " + select_url, 2)
+  log("Select URL = " + select_url, 2)
 
 
   req = urllib.request.Request(select_url)
@@ -1599,7 +1596,7 @@ if useauthstate == "true":
   }
 
   authentication_url = responseLogin.geturl().split("?")[0]
-  log("Authentication url = " + authentication_url, 5)
+  log("Authentication URL = " + authentication_url, 5)
       
 
 
@@ -1642,7 +1639,7 @@ LoginContents = donwloadFile(responseLogin)
  
 if "errorcode=" in responseLogin.geturl():
     log("Cannot login. Check your login data.")
-    log("Full url: " + responseLogin.geturl(), 5)
+    log("Full URL: " + responseLogin.geturl(), 5)
     exit(1)
 
 #Lookup in the Moodle source if it is standard   ("Logout" on every Page)
@@ -1660,7 +1657,7 @@ log("Logged in!", 1)
  
  
 
-#Get moodle base url
+#Get moodle base URL
 
 mainpageURL = addSlashIfNeeded(base_url)
 
@@ -1686,7 +1683,7 @@ if not os.path.isdir(root_directory):
    os.makedirs(root_directory)    
 
 
- #create crealHistoryfile
+ #create historyfile
 if not os.path.isfile(crawlHistoryFile):
    logFileWriter = open(crawlHistoryFile, 'a')
    #logFileWriter.write("LogFile:V1.0")
@@ -1746,4 +1743,4 @@ if findallduplicates == "true":
 
 
  
-log("Update Complete")
+log("Update complete")

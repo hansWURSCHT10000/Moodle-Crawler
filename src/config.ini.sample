@@ -29,7 +29,7 @@ dontcrawl = "mp4,mkv,mp3"
 #onlycrawlcourses = "123,4122"
 onlycrawlcourses = ""
 dontcrawlcourses = ""
-antirecrusion = true
+antirecursion = true
 
 [other]
 colors = true
