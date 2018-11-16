@@ -66,11 +66,11 @@ importlib.reload(sys)
 
 #Log levels:
 # - Level 0: Minimal Information + small Errors
-# - Level 1: More Information + Successes  + dublicates deleted
+# - Level 1: More Information + Successes  + duplicates deleted
 # - Level 2: Doing Statemants + Found information
 # - Level 3: More Errors + More Infos
-# - Level 4: More Doing Statements + Dowload Info + Scann Dublicates
-# - Level 5: More Download Info + More Info about dublicates
+# - Level 4: More Doing Statements + Dowload Info + Scann duplicates
+# - Level 5: More Download Info + More Info about duplicates
 
  
 def log(logString, level=0):
@@ -669,7 +669,7 @@ def findOwnCourses(myCoursesURL):
           continue
 
        if([course_name, course_link] in courses):
-          log("Course" + course_name +" is dublicated.", 3)
+          log("Course" + course_name +" is duplicated.", 3)
           continue
 
        courses.append([course_name, course_link])
@@ -686,7 +686,7 @@ def findOwnCourses(myCoursesURL):
  
 
 def searchfordumpsSpecific(filepath, fileName, filetype, pathtoSearch):
-    #find dublication in folder pathtoSearch with specific filename and filetype without subfolders
+    #find duplication in folder pathtoSearch with specific filename and filetype without subfolders
       #filetype = "." + filepath.split('.')[-1]
       #fileBeginn = filepath[:(len(filepath) - len(filetype))]
       #fileName = fileBeginn.split(os.sep)[-1]
@@ -812,7 +812,7 @@ def searchfordumpsSpecific(filepath, fileName, filetype, pathtoSearch):
 
 
 def searchfordumps(pathtoSearch):
-    #find dublication in folder  pathtoSearch
+    #find duplication in folder  pathtoSearch
     global filesBySize
     filesBySize = {}
     log('Scanning directory "%s"....' % pathtoSearch, 5)
