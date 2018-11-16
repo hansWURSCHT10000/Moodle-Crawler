@@ -910,7 +910,7 @@ def logDuplicates(dubPath, oriPath):
       dubLogReadeer.close()
       if not dubPath in dubLog:
          log('I will store information about the duplicates in the "file://' + dubLogPath + '" file.', 4)
-         dubLogWriter = io.open(dubLogPath, 'ab')
+         dubLogWriter = io.open(dubLogPath, 'a')
          dubLogWriter.write(datetime.now().strftime('%d.%m.%Y %H:%M:%S') + " "+ dubPath + " was found in this place " + oriPath + "\n")
          dubLogWriter.close()
          
@@ -920,7 +920,7 @@ def logDuplicates(dubPath, oriPath):
 
    else:
       log('I will store information about the duplicates in the ""file://' + dubLogPath + '" file.', 4)
-      dubLogWriter = io.open(dubLogPath, 'ab')
+      dubLogWriter = io.open(dubLogPath, 'a')
       dubLogWriter.write(datetime.now().strftime('%d.%m.%Y %H:%M:%S') + " "+ dubPath + " was found in this place " + oriPath + "\n")
       dubLogWriter.close()
 
@@ -1688,7 +1688,7 @@ if not os.path.isdir(root_directory):
 
  #create crealHistoryfile
 if not os.path.isfile(crawlHistoryFile):
-   logFileWriter = open(crawlHistoryFile, 'ab')
+   logFileWriter = open(crawlHistoryFile, 'a')
    #logFileWriter.write("LogFile:V1.0")
    logFileWriter.close()
    
