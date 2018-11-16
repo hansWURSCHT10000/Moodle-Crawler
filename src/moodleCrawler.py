@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-#  Copyright 2017 Daniel Vogt
+#   Copyright 2019 Daniel Vogt
 #
 #   This file is part of Moodle-Crawler.
 #
