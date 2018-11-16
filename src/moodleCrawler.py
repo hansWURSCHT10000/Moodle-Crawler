@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
 #  Copyright 2017 Daniel Vogt
@@ -19,17 +19,13 @@
 #   along with Moodle-Crawler.  If not, see <http://www.gnu.org/licenses/>.
 
 import http.cookiejar
-import urllib.request, urllib.error, urllib.parse
-import urllib.request, urllib.parse, urllib.error
+import urllib
 import io
 import os
 import os.path
 import hashlib
-import sys
 import stat
-#import md5
 import re
-import filecmp
 import sys
 import cgi
 import fnmatch
@@ -37,9 +33,6 @@ import datetime as dt
 
 from datetime import datetime
 from configparser import ConfigParser
-from urllib.parse import urlparse
-from threading import Thread
-from time import sleep
 from urllib.parse import urlparse, parse_qs
 
 import gi
@@ -69,7 +62,6 @@ except Exception as e:
 
 #utf8 shit
 importlib.reload(sys)
-print("encoding: ", sys.getdefaultencoding())
 
 
 #Log levels:
@@ -82,7 +74,6 @@ print("encoding: ", sys.getdefaultencoding())
 
  
 def log(logString, level=0):
-   #logString = logString.encode('utf-8'))
    if useColors == "true":
       if level <= int(loglevel):
          if level == 0:
@@ -199,15 +190,13 @@ root_directory = normPath(root_directory)
 
 
 username = checkConf("auth", "username")
-print("username: ", username)
-password = checkConf("auth", "password") 
+password = checkConf("auth", "password")
 authentication_url = checkConf("auth", "authurl")  
 base_url = checkConf("auth", "baseurl")  
 useauthstate = checkConf("auth", "useauthstate")  
 reLoginOnFile = checkConf("auth", "reloginonfile")  
 
 crawlallcourses = checkConf("crawl", "allcourses")
-print("crawlallcourses:", crawlallcourses)
 crawlforum = checkConf("crawl", "forum")
 crawlwiki = checkConf("crawl", "wiki")
 usehistory = checkConf("crawl", "history")
@@ -221,7 +210,6 @@ loglevel = checkConf("crawl", "loglevel")
 maxdepth = checkConf("crawl", "maxdepth") 
 dontcrawl = checkConf("crawl", "dontcrawl") 
 onlycrawlcourses = checkConf("crawl", "onlycrawlcourses")
-print("onlycrawlcourses: ",onlycrawlcourses)
 dontcrawlcourses = checkConf("crawl", "dontcrawlcourses")
 antirecrusion = checkConf("crawl", "antirecrusion")
  
