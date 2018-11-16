@@ -1,7 +1,7 @@
 # Automatic Moodle Downloader
 
 The `moodleCrawler.py` script downloads all the files posted in the course page of all the courses you are enroled to.
-Dublicated Files in the `root_dir` get deleted. Links in the history file get not downloaded.
+Duplicated Files in the `root_dir` get deleted. Links in the history file get not downloaded.
 
 You can change names of downloaded Files and Places them to a different location, they will not be downloaded again (only if you delete the history files).
 
@@ -31,8 +31,8 @@ Set the following in the file `config.ini` before running the script
 - `colors` [Boolean] : If colors should be used (For Windows use Cmder to display colors correct. http://cmder.net/)
 - `notifications` [Boolean] : If you want to get notified if new files were found
 - `onlycrawlcourses` [List] : A list of course IDs, that should only be crawled. It creates a subset of courses that were found in the dashboard (option `allcourses` creates the superset). If the list is empty no courses will be ignored.
-- `dontcrawlcourses` [List] : A list of course IDs, that should not be crawled. It creates a subset of courses that were found in the dashboard (option `allcourses` creates the superset). If the list is empty no courses will be ignored.
-- `antirecrusion` [Boolean] : Default this prevent recrusive crawling of the same page. If you do missing files try to set this to `false`
+- `dontcrawlcourses` [List] : A list of course IDs, that should not be crawled. It creates a subset of courses that were found in the dashboard (option `allcourses` has higher priority). If the list is empty no courses will be ignored.
+- `antirecursion` [Boolean] : This prevent recursive crawling of the same page. If you do missing files try to set this to `false`
 
 All the files are stored in their respective directories inside the `root_dir` with the names as in moodle.
 
@@ -43,7 +43,7 @@ It is planed to build a script to login (and logout) from all courses on a moodl
 
 #### REQUIREMENTS
 
-- Python 2
+- Python 3
 - Beautifulsoup - `sudo apt-get install python-beautifulsoup` or `sudo pip install beautifulsoup4`
 - lxml or similar - `easy_install lxml` or see http://lxml.de/installation.html for more information.
 
@@ -61,7 +61,7 @@ This code is the modified version of the downloader created by Vinay Chandra
 
 
 
-  Copyright 2017 Daniel Vogt
+  Copyright 2019 Daniel Vogt
 
    This file is part of Moodle-Crawler.
 
