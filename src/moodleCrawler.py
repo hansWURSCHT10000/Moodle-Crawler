@@ -18,16 +18,16 @@
 #   You should have received a copy of the GNU General Public License
 #   along with Moodle-Crawler.  If not, see <http://www.gnu.org/licenses/>.
 
-import cookielib
-import urllib2
-import urllib
+import http.cookiejar
+import urllib.request, urllib.error, urllib.parse
+import urllib.request, urllib.parse, urllib.error
 import io
 import os
 import os.path
 import hashlib
 import sys
 import stat
-import md5
+#import md5
 import re
 import filecmp
 import sys
@@ -36,13 +36,14 @@ import fnmatch
 import datetime as dt
 
 from datetime import datetime
-from ConfigParser import ConfigParser
-from urlparse import urlparse
+from configparser import ConfigParser
+from urllib.parse import urlparse
 from threading import Thread
 from time import sleep
-from urlparse import urlparse, parse_qs
+from urllib.parse import urlparse, parse_qs
 
 import gi
+import importlib
 gi.require_version('Notify', '0.7') 
 from gi.repository import Notify
 
@@ -51,7 +52,7 @@ Notify.init("Moodle Crawler")
 #logvariable
 loglevel = 5
 useColors = "false"
-config_path = 'config.ini'
+config_path = '/home/marcel/projects/moodle/2to3/config.ini'
 exitapp = False
 
 progressmessagelength = 0
@@ -67,9 +68,8 @@ except Exception as e:
    exit(1)
 
 #utf8 shit
-reload(sys)
-sys.setdefaultencoding('utf-8')
-
+importlib.reload(sys)
+print("encoding: ", sys.getdefaultencoding())
 
 
 #Log levels:
@@ -82,7 +82,7 @@ sys.setdefaultencoding('utf-8')
 
  
 def log(logString, level=0):
-   logString = logString.encode('utf-8')
+   #logString = logString.encode('utf-8'))
    if useColors == "true":
       if level <= int(loglevel):
          if level == 0:
@@ -102,7 +102,7 @@ def log(logString, level=0):
          if level == 0:
             print(datetime.now().strftime('%H:%M:%S') + " " + logString)
          elif level == 1:
-            print(datetime.now().strftime('%H:%M:%S') + " " + logString) 
+            print(datetime.now().strftime('%H:%M:%S') + " " + logString)
          elif level == 2:
             print(datetime.now().strftime('%H:%M:%S') + " " + logString)
          elif level == 3:
@@ -198,7 +198,8 @@ root_directory = checkConf("dirs", "root_dir")
 root_directory = normPath(root_directory)
 
 
-username = checkConf("auth", "username") 
+username = checkConf("auth", "username")
+print("username: ", username)
 password = checkConf("auth", "password") 
 authentication_url = checkConf("auth", "authurl")  
 base_url = checkConf("auth", "baseurl")  
@@ -206,6 +207,7 @@ useauthstate = checkConf("auth", "useauthstate")
 reLoginOnFile = checkConf("auth", "reloginonfile")  
 
 crawlallcourses = checkConf("crawl", "allcourses")
+print("crawlallcourses:", crawlallcourses)
 crawlforum = checkConf("crawl", "forum")
 crawlwiki = checkConf("crawl", "wiki")
 usehistory = checkConf("crawl", "history")
@@ -218,7 +220,8 @@ informationaboutduplicates = checkConf("crawl", "informationaboutduplicates")
 loglevel = checkConf("crawl", "loglevel") 
 maxdepth = checkConf("crawl", "maxdepth") 
 dontcrawl = checkConf("crawl", "dontcrawl") 
-onlycrawlcourses = checkConf("crawl", "onlycrawlcourses") 
+onlycrawlcourses = checkConf("crawl", "onlycrawlcourses")
+print("onlycrawlcourses: ",onlycrawlcourses)
 dontcrawlcourses = checkConf("crawl", "dontcrawlcourses")
 antirecrusion = checkConf("crawl", "antirecrusion")
  
@@ -280,10 +283,10 @@ filesBySize = {}
 
 
 #Setup Loader
-cj = cookielib.CookieJar()
-opener = urllib2.build_opener(urllib2.HTTPCookieProcessor(cj))
+cj = http.cookiejar.CookieJar()
+opener = urllib.request.build_opener(urllib.request.HTTPCookieProcessor(cj))
 opener.addheaders = [('User-agent', 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.103 Safari/537.36')]
-urllib2.install_opener(opener)
+urllib.request.install_opener(opener)
 
 
 #setup crawler live history
@@ -306,7 +309,7 @@ def walker(arg, dirname, fnames):
         #print f + " size: " + str(size)
         if size < 100:
             continue
-        if filesBySize.has_key(size):
+        if size in filesBySize:
             a = filesBySize[size]
         else:
             a = []
@@ -353,8 +356,7 @@ def donwloadFile(downloadFileResponse):
            break
            
        bytes_so_far += len(downloadFileContentBuffer) 
-       downloadFileContent = downloadFileContent + downloadFileContentBuffer
-       
+       downloadFileContent = downloadFileContent + str(downloadFileContentBuffer)
 
        #calc speed
        endtime = dt.datetime.now()
@@ -428,7 +430,8 @@ def saveFile(webFileFilename, pathToSave, webFileContent, webFileResponse, webFi
 
 
    try:
-     pdfFile = io.open(file_name, 'wb')
+     pdfFile = io.open(file_name, 'w')
+     print("file_name: ", file_name)
      pdfFile.write(webFileContent)
      webFileResponse.close()
      pdfFile.close()
@@ -454,22 +457,22 @@ def saveFile(webFileFilename, pathToSave, webFileContent, webFileResponse, webFi
 
 #adds an entry to the log file ... so that the file gets not recrawled
 def addFileToLog(pageLink, filePath):
-   logFileWriter = io.open(crawlHistoryFile, 'ab')
+   logFileWriter = io.open(crawlHistoryFile, 'a')
    logFileWriter.write(datetime.now().strftime('%d.%m.%Y %H:%M:%S') + " "+ pageLink + " saved to '" + filePath + "'\n")
    logFileWriter.close()
    global logFile
-   logFileReader = io.open(crawlHistoryFile, 'rb')
+   logFileReader = io.open(crawlHistoryFile, 'r')
    logFile = logFileReader.read()
    logFileReader.close()
 
 
 
 def addHashToLog(pageDir, calcHash):
-   logFileWriter = io.open(crawlHistoryFile, 'ab')
+   logFileWriter = io.open(crawlHistoryFile, 'a')
    logFileWriter.write(datetime.now().strftime('%d.%m.%Y %H:%M:%S') + " "+ pageDir + " calculated hash " + calcHash + "\n")
    logFileWriter.close()
    global logFile
-   logFileReader = io.open(crawlHistoryFile, 'rb')
+   logFileReader = io.open(crawlHistoryFile, 'r')
    logFile = logFileReader.read()
    logFileReader.close()
 
@@ -504,8 +507,8 @@ def tag_visible(element):
 def text_from_html(body):
     soup = BeautifulSoup(body, 'lxml')
     texts = soup.findAll(text=True)
-    visible_texts = filter(tag_visible, texts)  
-    return u" ".join(t.strip() for t in visible_texts)
+    visible_texts = list(filter(tag_visible, texts))  
+    return " ".join(t.strip() for t in visible_texts)
 
 
 #status:
@@ -531,7 +534,7 @@ def checkLoginStatus(pageContent):
  
       global req
       try:
-         responseLogin = urllib2.urlopen(req, timeout=10)
+         responseLogin = urllib.request.urlopen(req, timeout=10)
       except Exception as e:
          raise NotGoodErrror(e)
        
@@ -566,11 +569,11 @@ def checkLoginStatus(pageContent):
 
 def decodeFilename(fileName):
 
-  htmlDecode = urllib.unquote(fileName).decode('utf8')
+  htmlDecode = urllib.parse.unquote(fileName)
   htmlDecode = htmlDecode.replace('/', '-').replace('\\', '-').replace(' ', '-').replace('#', '-').replace('%', '-').replace('&', '-').replace('{', '-').replace('}', '-').replace('<', '-')
-  htmlDecode = htmlDecode.replace('>', '-').replace('*', '-').replace('?', '-').replace('$', '-').replace('!', '-').replace(u'‘', '-').replace('|', '-').replace('=', '-').replace(u'`', '-').replace('+', '-')
+  htmlDecode = htmlDecode.replace('>', '-').replace('*', '-').replace('?', '-').replace('$', '-').replace('!', '-').replace('‘', '-').replace('|', '-').replace('=', '-').replace('`', '-').replace('+', '-')
   htmlDecode = htmlDecode.replace(':', '-').replace('@', '-').replace('"', '-')
-  old = urllib.unquote(fileName).decode('utf8')
+  old = urllib.parse.unquote(fileName)
   if(old != htmlDecode):
   	log("Changed filename from '" + old + "'' to '" + htmlDecode + "'", 5)
 
@@ -587,8 +590,13 @@ def dontCrawlCheck(url):
 
 
 def onlyCrawlCoursesCheck(url):
+
    coursId = url.split("?")[1].split("&")[0].split("=")[1]
-   if onlycrawlcourses == "":
+   #print("onlyCrawlCoursesCheck: ", onlycrawlcourses)
+   #print("len: ", len(onlycrawlcourses))
+
+   if (onlycrawlcourses == '""'):
+     # print("checked is empty: ", onlycrawlcourses)
       return True
    
    if not coursId is None and coursId in listOnlyCrawlCourses:
@@ -612,12 +620,12 @@ def findOwnCourses(myCoursesURL):
    #Lookup in the Moodle source if it is standard (moodlePath/my/ are my courses)
    try:
       if crawlallcourses == "true":
-         responseCourses = urllib2.urlopen(myCoursesURL + "my/index.php?mynumber=-2", timeout=10) 
+         responseCourses = urllib.request.urlopen(myCoursesURL + "my/index.php?mynumber=-2", timeout=10) 
       else:
-         responseCourses = urllib2.urlopen(myCoursesURL + "my/", timeout=10) 
+         responseCourses = urllib.request.urlopen(myCoursesURL + "my/", timeout=10) 
    except Exception as e:
       log("Connection lost! It is not possible to connect to course page! At: " + myCoursesURL)
-      log("Exception details: " + str(e), 5)
+      log("Exception details1: " + str(e), 5)
       exit(1)
    CoursesContents = donwloadFile(responseCourses)
    
@@ -663,6 +671,7 @@ def findOwnCourses(myCoursesURL):
        #   blockCourse = False
    
        #if blockCourse == False:
+
        if not onlyCrawlCoursesCheck(course_link):
           log("Course " + course_name + " will not be crawled because the course id is not given in option 'onlycrawlcourses'.", 3)
           continue
@@ -716,7 +725,7 @@ def searchfordumpsSpecific(filepath, fileName, filetype, pathtoSearch):
         #print f + " size: " + str(size)
         if not size == coresize:
             continue
-        if filesBySizeSpe.has_key(size):
+        if size in filesBySizeSpe:
             a = filesBySizeSpe[size]
         else:
             a = []
@@ -727,7 +736,7 @@ def searchfordumpsSpecific(filepath, fileName, filetype, pathtoSearch):
     potentialDupes = []
     potentialCount = 0
     trueType = type(True)
-    sizes = filesBySizeSpe.keys()
+    sizes = list(filesBySizeSpe.keys())
     sizes.sort()
     for k in sizes:
         inFiles = filesBySizeSpe[k]
@@ -743,7 +752,7 @@ def searchfordumpsSpecific(filepath, fileName, filetype, pathtoSearch):
             aFile = file(fileNameSingle, 'r')
             hasher = md5.new(aFile.read(1024))
             hashValue = hasher.digest()
-            if hashes.has_key(hashValue):
+            if hashValue in hashes:
                 x = hashes[hashValue]
                 if type(x) is not trueType:
                     outFiles.append(hashes[hashValue])
@@ -775,7 +784,7 @@ def searchfordumpsSpecific(filepath, fileName, filetype, pathtoSearch):
                 hasher.update(r)
             aFile.close()
             hashValue = hasher.digest()
-            if hashes.has_key(hashValue):
+            if hashValue in hashes:
                 if not len(outFiles):
                     outFiles.append(hashes[hashValue])
                 outFiles.append(fileNameSingle)
@@ -819,13 +828,13 @@ def searchfordumps(pathtoSearch):
     global filesBySize
     filesBySize = {}
     log('Scanning directory "%s"....' % pathtoSearch, 5)
-    os.path.walk(pathtoSearch, walker, filesBySize)
+    os.walk(pathtoSearch, walker, filesBySize)
 
     log('Finding potential dupes...', 4)
     potentialDupes = []
     potentialCount = 0
     trueType = type(True)
-    sizes = filesBySize.keys()
+    sizes = list(filesBySize.keys())
     sizes.sort()
     for k in sizes:
         inFiles = filesBySize[k]
@@ -841,7 +850,7 @@ def searchfordumps(pathtoSearch):
             aFile = file(fileName, 'r')
             hasher = md5.new(aFile.read(1024))
             hashValue = hasher.digest()
-            if hashes.has_key(hashValue):
+            if hashValue in hashes:
                 x = hashes[hashValue]
                 if type(x) is not trueType:
                     outFiles.append(hashes[hashValue])
@@ -873,7 +882,7 @@ def searchfordumps(pathtoSearch):
                 hasher.update(r)
             aFile.close()
             hashValue = hasher.digest()
-            if hashes.has_key(hashValue):
+            if hashValue in hashes:
                 if not len(outFiles):
                     outFiles.append(hashes[hashValue])
                 outFiles.append(fileName)
@@ -908,7 +917,7 @@ def logDuplicates(dubPath, oriPath):
 
 
    if os.path.isfile(dubLogPath):
-      dubLogReadeer = io.open(dubLogPath, 'rb')
+      dubLogReadeer = io.open(dubLogPath, 'r')
       dubLog = dubLogReadeer.read()
       dubLogReadeer.close()
       if not dubPath in dubLog:
@@ -952,7 +961,7 @@ def logExternalLink(extlink, extname, extLinkDir):
         if not os.path.isfile(new_name):
             file_name = new_name
             log('I will store the external link ' + extlink + ' in "file://' + file_name + '".', 0)
-            externalLinkWriter = io.open(file_name, 'ab')
+            externalLinkWriter = io.open(file_name, 'a')
             if os.name == "nt":
                 externalLinkWriter.write(""""[InternetShortcut]
 URL=""" + extlink)
@@ -968,7 +977,7 @@ Name[en_US]=""" + extname)
             externalLinkWriter.close()
             break
         else:
-            externalLinkReadeer = io.open(new_name, 'rb')
+            externalLinkReadeer = io.open(new_name, 'r')
             externallinks = externalLinkReadeer.read()
             externalLinkReadeer.close()
             if extlink in externallinks:
@@ -983,11 +992,11 @@ Name[en_US]=""" + extname)
     
          
     if boolExternalLinkStored == True:
-      logFileWriter = io.open(crawlHistoryFile, 'ab')
+      logFileWriter = io.open(crawlHistoryFile, 'a')
       logFileWriter.write(datetime.now().strftime('%d.%m.%Y %H:%M:%S') + " External: "+ extlink + " saved to '" + file_name + "'\n")
       logFileWriter.close()
       global logFile
-      logFileReader = io.open(crawlHistoryFile, 'rb')
+      logFileReader = io.open(crawlHistoryFile, 'r')
       logFile = logFileReader.read()
       logFileReader.close()
 
@@ -1141,10 +1150,10 @@ def crawlMoodlePage(pagelink, pagename, parentDir, calledFrom, depth=0, forbidre
      
     #try to get a response from link
     try:
-       responsePageLink = urllib2.urlopen(pagelink, timeout=10)
+       responsePageLink = urllib.request.urlopen(pagelink, timeout=10)
     except Exception as e:
        log("Connection lost! Page does not exist!", 2)
-       log("Exception details: " + str(e), 5)
+       log("Exception details2: " + str(e), 5)
        return
    
     isSpecialExternLink = False
@@ -1171,15 +1180,15 @@ def crawlMoodlePage(pagelink, pagename, parentDir, calledFrom, depth=0, forbidre
        value, params = cgi.parse_header(pageFileNameEnc)
        pageFileName = params['filename']
     except Exception as e:
-          log("No Content-Disposition available. Exception details: " + str(e), 5)
+          log("No Content-Disposition available. Exception details3: " + str(e), 5)
     if pageFileName is None or pageFileName == "":
-       pageFileName = os.path.basename(urllib2.urlparse.urlsplit(pagelink).path)
-    
+       pageFileName = os.path.basename(urllib.parse.urlsplit(pagelink).path)
+
     pageFileName = decodeFilename(pageFileName).strip("-")
 
     #is this page a html page
     pageIsHtml = False
-    if "text/html" in responsePageLink.info().getheader('Content-Type') or pageFileName[-4:] == ".php" or pageFileName[-5:] == ".html":
+    if "text/html" in responsePageLink.info().get('Content-Type') or pageFileName[-4:] == ".php" or pageFileName[-5:] == ".html":
        pageIsHtml = True
 
     #cheating: try to fix moodle page names
@@ -1199,7 +1208,7 @@ def crawlMoodlePage(pagelink, pagename, parentDir, calledFrom, depth=0, forbidre
           loginStatus = checkLoginStatus(PageLinkContent) 
        except Exception as e:
           log("Connection lost! It is not possible to connect to moodle!", 3)
-          log("Exception details: " + str(e), 5)
+          log("Exception details4: " + str(e), 5)
           return
 
        if loginStatus == 0:  #Not logged in
@@ -1212,13 +1221,14 @@ def crawlMoodlePage(pagelink, pagename, parentDir, calledFrom, depth=0, forbidre
        elif loginStatus == 2: #Relogged in
           log("Recheck Page: '" + pagelink + "'", 4)
           try:
-             responsePageLink = urllib2.urlopen(pagelink, timeout=10)
+             responsePageLink: object = urllib.request.urlopen(pagelink, timeout=10)
           except Exception as e:
              log("Connection lost! Page does not exist!", 3)
-             log("Exception details: " + str(e), 5)
+             log("Exception details5: " + str(e), 5)
              return
      
           PageLinkContent = donwloadFile(responsePageLink)
+          print("\nresponsePageLink:\n", responsePageLink)
           
        elif loginStatus == 3: #Not a moodle Page
           if isexternlink == False:
@@ -1268,30 +1278,38 @@ def crawlMoodlePage(pagelink, pagename, parentDir, calledFrom, depth=0, forbidre
           #fix broken html ... remove navigation
           [s.decompose() for s in page_links_Soup.select("aside")]
 
+          #TODO sth is wrong here. why no header?
           #header without script tags
+          # print("Header: ",moodlePageHeader)
+          #print("suppe:\n",PageSoup.text)
+
           moodlePageHeader = PageSoup.find("head")
-          [s.decompose() for s in moodlePageHeader('script')]
+
+          #[s.decompose() for s in moodlePageHeader('script')]
 
           #[s.decompose() for s in moodlePageHeader('link')]
           
           stylesheetpattern = re.compile("^(.*)/styles.php/(.*)/\d*/(.*)$")
           faviconpattern = re.compile("^(.*)/image.php/(.*)/\d*/(.*)$")
           favicon2pattern = re.compile("^(.*)/pluginfile.php/(.*)/\d*/(.*)$")
-            
-          for s in moodlePageHeader.select('link'):
-              m = stylesheetpattern.match(s['href'])
-              if m != None:
-                s['href'] = (m.group(1) + "/styles.php/" + m.group(2) + "/42/" + m.group(3))
-                continue
-              m = faviconpattern.match(s['href'])
-              if m != None:
-                s['href'] = (m.group(1) + "/image.php/" + m.group(2) + "/42/" + m.group(3)) 
-                continue
-              m = favicon2pattern.match(s['href'])
-              if m != None:
-                s['href'] = (m.group(1) + "/pluginfile.php/" + m.group(2) + "/42/" + m.group(3)) 
-                continue
-        
+
+          if moodlePageHeader != None:
+              m=moodlePageHeader.select('link')
+              if m!= None:
+                  for s in m:
+                      m = stylesheetpattern.match(s['href'])
+                      if m != None:
+                        s['href'] = (m.group(1) + "/styles.php/" + m.group(2) + "/42/" + m.group(3))
+                        continue
+                      m = faviconpattern.match(s['href'])
+                      if m != None:
+                        s['href'] = (m.group(1) + "/image.php/" + m.group(2) + "/42/" + m.group(3))
+                        continue
+                      m = favicon2pattern.match(s['href'])
+                      if m != None:
+                        s['href'] = (m.group(1) + "/pluginfile.php/" + m.group(2) + "/42/" + m.group(3))
+                        continue
+
 
           for s in page_links_Soup.select('img'):
               m = stylesheetpattern.match(s['src'])
@@ -1374,13 +1392,13 @@ def crawlMoodlePage(pagelink, pagename, parentDir, calledFrom, depth=0, forbidre
          if len(submissiontr) > 2:
             submissiontr[-3].decompose() 
          
-         textofhtml = text_from_html(str(PageLinkContent));
+         textofhtml = text_from_html(str(PageLinkContent)).encode('utf-8');
          #print(textofhtml);
          
-         m = md5.new()
+         m = hashlib.md5() #md5.new()
          m.update(textofhtml)
          calcHash = m.hexdigest()
-        
+
          if usehistory == "true" and  (pageDir + " calculated hash " + calcHash) in logFile:
             log("This page was saved in the past. I will not resave it, change the recrawl settings if you want to resave it.", 3)
             doSave = False
@@ -1492,13 +1510,13 @@ if useauthstate == "true":
 
   log("Create Auth State Session.")
 
-  req = urllib2.Request(authentication_url)
+  req = urllib.request.Request(authentication_url)
 
   try:
-     responseLogin = urllib2.urlopen(req, timeout=10)
+     responseLogin = urllib.request.urlopen(req, timeout=10)
   except Exception as e:
      log("Connection lost! It is not possible to connect to login page!")
-     log("Exception details: " + str(e), 5)
+     log("Exception details6: " + str(e), 5)
      exit(1)
 
   LoginContents = donwloadFile(responseLogin)
@@ -1567,18 +1585,18 @@ if useauthstate == "true":
     thirdName : thirdValue
   }
 
-  extaLoginToken =  urllib.urlencode(payloadAuthState) 
+  extaLoginToken =  urllib.parse.urlencode(payloadAuthState) 
   select_url = addQuestionmarkIfNeeded(actionLink) + extaLoginToken
   log("Select url = " + select_url, 2)
 
 
-  req = urllib2.Request(select_url)
+  req = urllib.request.Request(select_url)
 
   try:
-     responseLogin = urllib2.urlopen(req, timeout=10)
+     responseLogin = urllib.request.urlopen(req, timeout=10)
   except Exception as e:
      log("Connection lost! It is not possible to connect to login page!")
-     log("Exception details: " + str(e), 5)
+     log("Exception details7: " + str(e), 5)
      exit(1)
 
   LoginContents = donwloadFile(responseLogin)
@@ -1599,7 +1617,7 @@ if useauthstate == "true":
 
 
 
-data = urllib.urlencode(payload)
+data = urllib.parse.urlencode(payload).encode("utf-8")
 
 crawlHistoryFile = normPath(addSlashIfNeeded(root_directory)+ ".crawlhistory.log")
 
@@ -1623,13 +1641,13 @@ log("Try to login...", 2)
 
 
 #login prozedur
-req = urllib2.Request(authentication_url, data)
+req = urllib.request.Request(authentication_url, data)
 
 try:
-   responseLogin = urllib2.urlopen(req, timeout=10)
+   responseLogin = urllib.request.urlopen(req, timeout=10)
 except Exception as e:
    log("Connection lost! It is not possible to connect to login page!")
-   log("Exception details: " + str(e), 5)
+   log("Exception details8: " + str(e), 5)
    exit(1)
    
 LoginContents = donwloadFile(responseLogin)
@@ -1683,10 +1701,10 @@ if not os.path.isdir(root_directory):
  #create crealHistoryfile
 if not os.path.isfile(crawlHistoryFile):
    logFileWriter = open(crawlHistoryFile, 'ab')
-   logFileWriter.write("LogFile:V1.0")
+   #logFileWriter.write("LogFile:V1.0")
    logFileWriter.close()
    
-logFileReader = open(crawlHistoryFile, 'rb')
+logFileReader = open(crawlHistoryFile, 'r')
 logFile = logFileReader.read()
 logFileReader.close()
 
@@ -1703,7 +1721,7 @@ for line in logFileLines:
 if logfileOld:
   log("Fixing Log File", 2)
   os.remove(crawlHistoryFile)
-  logFileWriter = open(crawlHistoryFile, 'ab')
+  logFileWriter = open(crawlHistoryFile, 'a')
   logFileWriter.write("LogFile:V1.0\n")
   for line in logFileLines:
      if "Crawler" in line and "log" in line and "file" in line and "for" in line:
@@ -1712,7 +1730,7 @@ if logfileOld:
           
   logFileWriter.close()
      
-  logFileReader = open(crawlHistoryFile, 'rb')
+  logFileReader = open(crawlHistoryFile, 'r')
   logFile = logFileReader.read()
   logFileReader.close()
 
