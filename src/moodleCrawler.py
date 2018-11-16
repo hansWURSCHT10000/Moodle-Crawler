@@ -418,7 +418,7 @@ def saveFile(webFileFilename, pathToSave, webFileContent, webFileResponse, webFi
 
 
    try:
-     pdfFile = io.open(file_name, 'w')
+     pdfFile = open(file_name, 'w')
      print("file_name: ", file_name)
      pdfFile.write(webFileContent)
      webFileResponse.close()
@@ -445,22 +445,22 @@ def saveFile(webFileFilename, pathToSave, webFileContent, webFileResponse, webFi
 
 #adds an entry to the log file ... so that the file gets not recrawled
 def addFileToLog(pageLink, filePath):
-   logFileWriter = io.open(crawlHistoryFile, 'a')
+   logFileWriter = open(crawlHistoryFile, 'a')
    logFileWriter.write(datetime.now().strftime('%d.%m.%Y %H:%M:%S') + " "+ pageLink + " saved to '" + filePath + "'\n")
    logFileWriter.close()
    global logFile
-   logFileReader = io.open(crawlHistoryFile, 'r')
+   logFileReader = open(crawlHistoryFile, 'r')
    logFile = logFileReader.read()
    logFileReader.close()
 
 
 
 def addHashToLog(pageDir, calcHash):
-   logFileWriter = io.open(crawlHistoryFile, 'a')
+   logFileWriter = open(crawlHistoryFile, 'a')
    logFileWriter.write(datetime.now().strftime('%d.%m.%Y %H:%M:%S') + " "+ pageDir + " calculated hash " + calcHash + "\n")
    logFileWriter.close()
    global logFile
-   logFileReader = io.open(crawlHistoryFile, 'r')
+   logFileReader = open(crawlHistoryFile, 'r')
    logFile = logFileReader.read()
    logFileReader.close()
 
@@ -734,7 +734,7 @@ def searchfordumpsSpecific(filepath, fileName, filetype, pathtoSearch):
         for fileNameSingle in inFiles:
             if not os.path.isfile(fileNameSingle):
                 continue
-            aFile = file(fileNameSingle, 'r')
+            aFile = open(fileNameSingle, 'r')
             hasher = md5.new(aFile.read(1024))
             hashValue = hasher.digest()
             if hashValue in hashes:
@@ -760,7 +760,7 @@ def searchfordumpsSpecific(filepath, fileName, filetype, pathtoSearch):
         hashes = {}
         for fileNameSingle in aSet:
             log('Scanning file "%s"...' % fileNameSingle, 5)
-            aFile = file(fileNameSingle, 'r')
+            aFile = open(fileNameSingle, 'r')
             hasher = md5.new()
             while True:
                 r = aFile.read(4096)
@@ -832,7 +832,7 @@ def searchfordumps(pathtoSearch):
         for fileName in inFiles:
             if not os.path.isfile(fileName):
                 continue
-            aFile = file(fileName, 'r')
+            aFile = open(fileName, 'r')
             hasher = md5.new(aFile.read(1024))
             hashValue = hasher.digest()
             if hashValue in hashes:
@@ -858,8 +858,8 @@ def searchfordumps(pathtoSearch):
         hashes = {}
         for fileName in aSet:
             log('Scanning file "%s"...' % fileName, 5)
-            aFile = file(fileName, 'r')
-            hasher = md5.new()
+            aFile = open(fileName, 'r')
+            hasher = hashlib.md5()  # md5.new()
             while True:
                 r = aFile.read(4096)
                 if not len(r):
@@ -902,12 +902,12 @@ def logDuplicates(dubPath, oriPath):
 
 
    if os.path.isfile(dubLogPath):
-      dubLogReadeer = io.open(dubLogPath, 'r')
+      dubLogReadeer = open(dubLogPath, 'r')
       dubLog = dubLogReadeer.read()
       dubLogReadeer.close()
       if not dubPath in dubLog:
          log('I will store information about the duplicates in the "file://' + dubLogPath + '" file.', 4)
-         dubLogWriter = io.open(dubLogPath, 'a')
+         dubLogWriter = open(dubLogPath, 'a')
          dubLogWriter.write(datetime.now().strftime('%d.%m.%Y %H:%M:%S') + " "+ dubPath + " was found in this place " + oriPath + "\n")
          dubLogWriter.close()
          
@@ -917,7 +917,7 @@ def logDuplicates(dubPath, oriPath):
 
    else:
       log('I will store information about the duplicates in the ""file://' + dubLogPath + '" file.', 4)
-      dubLogWriter = io.open(dubLogPath, 'a')
+      dubLogWriter = open(dubLogPath, 'a')
       dubLogWriter.write(datetime.now().strftime('%d.%m.%Y %H:%M:%S') + " "+ dubPath + " was found in this place " + oriPath + "\n")
       dubLogWriter.close()
 
@@ -946,7 +946,7 @@ def logExternalLink(extlink, extname, extLinkDir):
         if not os.path.isfile(new_name):
             file_name = new_name
             log('I will store the external link ' + extlink + ' in "file://' + file_name + '".', 0)
-            externalLinkWriter = io.open(file_name, 'a')
+            externalLinkWriter = open(file_name, 'a')
             if os.name == "nt":
                 externalLinkWriter.write(""""[InternetShortcut]
 URL=""" + extlink)
@@ -962,7 +962,7 @@ Name[en_US]=""" + extname)
             externalLinkWriter.close()
             break
         else:
-            externalLinkReadeer = io.open(new_name, 'r')
+            externalLinkReadeer = open(new_name, 'r')
             externallinks = externalLinkReadeer.read()
             externalLinkReadeer.close()
             if extlink in externallinks:
@@ -977,11 +977,11 @@ Name[en_US]=""" + extname)
     
          
     if boolExternalLinkStored == True:
-      logFileWriter = io.open(crawlHistoryFile, 'a')
+      logFileWriter = open(crawlHistoryFile, 'a')
       logFileWriter.write(datetime.now().strftime('%d.%m.%Y %H:%M:%S') + " External: "+ extlink + " saved to '" + file_name + "'\n")
       logFileWriter.close()
       global logFile
-      logFileReader = io.open(crawlHistoryFile, 'r')
+      logFileReader = open(crawlHistoryFile, 'r')
       logFile = logFileReader.read()
       logFileReader.close()
 
@@ -1026,7 +1026,7 @@ def crawlMoodlePage(pagelink, pagename, parentDir, calledFrom, depth=0, forbidre
        return
 
     if wrongParameter == True:
-       log("The parameters are to wrong. I return!", 2) 
+       log("The parameters are too wrong. I return!", 2)
        return
 
     #check if link is empty
