@@ -890,35 +890,35 @@ def searchfordumps(pathtoSearch):
 
 
 #log duplicates
-def logDuplicates(dubPath, oriPath):
-   fileName = dubPath.split(os.sep)[-1]
-   dubDir = dubPath[:(len(dubPath) - len(fileName) )]
+def logDuplicates(dupPath, oriPath):
+   fileName = dupPath.split(os.sep)[-1]
+   dupDir = dupPath[:(len(dupPath) - len(fileName) )]
 
-   if not os.path.isdir(dubDir):
-      os.makedirs(dubDir)   
+   if not os.path.isdir(dupDir):
+      os.makedirs(dupDir)   
    
-   dubLogPath = normPath(addSlashIfNeeded(dubDir) + "duplicates.log")
+   dupLogPath = normPath(addSlashIfNeeded(dupDir) + "duplicates.log")
 
 
-   if os.path.isfile(dubLogPath):
-      dubLogReadeer = open(dubLogPath, 'r')
-      dubLog = dubLogReadeer.read()
-      dubLogReadeer.close()
-      if not dubPath in dubLog:
-         log('I will store information about the duplicates in the "file://' + dubLogPath + '" file.', 4)
-         dubLogWriter = open(dubLogPath, 'a')
-         dubLogWriter.write(datetime.now().strftime('%d.%m.%Y %H:%M:%S') + " "+ dubPath + " was found in this place " + oriPath + "\n")
-         dubLogWriter.close()
+   if os.path.isfile(dupLogPath):
+      dupLogReadeer = open(dupLogPath, 'r')
+      dupLog = dupLogReadeer.read()
+      dupLogReadeer.close()
+      if not dupPath in dupLog:
+         log('I will store information about the duplicates in the "file://' + dupLogPath + '" file.', 4)
+         dupLogWriter = open(dupLogPath, 'a')
+         dupLogWriter.write(datetime.now().strftime('%d.%m.%Y %H:%M:%S') + " "+ dupPath + " was found in this place " + oriPath + "\n")
+         dupLogWriter.close()
          
 
       else:
-         log('This duplicates were found before and loged in the "file://' + dubLogPath + '" file earlier. Inform the project maintainer pleace.', 5)
+         log('This duplicates were found before and loged in the "file://' + dupLogPath + '" file earlier. Inform the project maintainer pleace.', 5)
 
    else:
-      log('I will store information about the duplicates in the ""file://' + dubLogPath + '" file.', 4)
-      dubLogWriter = open(dubLogPath, 'a')
-      dubLogWriter.write(datetime.now().strftime('%d.%m.%Y %H:%M:%S') + " "+ dubPath + " was found in this place " + oriPath + "\n")
-      dubLogWriter.close()
+      log('I will store information about the duplicates in the ""file://' + dupLogPath + '" file.', 4)
+      dupLogWriter = open(dupLogPath, 'a')
+      dupLogWriter.write(datetime.now().strftime('%d.%m.%Y %H:%M:%S') + " "+ dupPath + " was found in this place " + oriPath + "\n")
+      dupLogWriter.close()
 
    
 
